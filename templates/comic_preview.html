@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Comic Preview · ComicCraftAI
+    </title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+
+            padding: 25px 18px;
+
+            background: #f4f2fb;
+
+            color: #1c1730;
+
+            font-family:
+                Inter,
+                Arial,
+                sans-serif;
+        }
+
+        .wrap {
+            width:
+                min(
+                    1050px,
+                    100%
+                );
+
+            margin: auto;
+        }
+
+        .top {
+            display: flex;
+
+            align-items: center;
+
+            justify-content:
+                space-between;
+
+            gap: 15px;
+
+            flex-wrap: wrap;
+
+            margin-bottom: 18px;
+        }
+
+        .top h1 {
+            margin: 0;
+        }
+
+        .actions {
+            display: flex;
+
+            gap: 9px;
+
+            flex-wrap: wrap;
+        }
+
+        .button {
+            display: inline-block;
+
+            padding: 11px 15px;
+
+            border-radius: 12px;
+
+            text-decoration: none;
+
+            font-weight: 800;
+        }
+
+        .primary {
+            background: #1c1730;
+
+            color: white;
+        }
+
+        .secondary {
+            background: white;
+
+            color: #1c1730;
+
+            border:
+                1px solid #ded8ef;
+        }
+
+        .meta {
+            background: white;
+
+            border:
+                1px solid #e4e0ef;
+
+            border-radius: 18px;
+
+            padding: 16px 18px;
+
+            margin-bottom: 18px;
+        }
+
+        .panel {
+            background: white;
+
+            border:
+                1px solid #e4e0ef;
+
+            border-radius: 22px;
+
+            padding: 18px;
+
+            margin-bottom: 18px;
+
+            box-shadow:
+                0 10px 30px
+                rgba(41,31,85,.07);
+        }
+
+        .panel h2 {
+            margin:
+                0 0 12px;
+        }
+
+        .panel img {
+            display: block;
+
+            width: 100%;
+
+            max-height: 650px;
+
+            object-fit: contain;
+
+            border-radius: 16px;
+
+            background: #eee;
+        }
+
+        .scene {
+            color: #655e77;
+
+            font-style: italic;
+
+            line-height: 1.6;
+
+            margin:
+                13px 0;
+        }
+
+        .copy {
+            line-height: 1.65;
+
+            margin-top: 7px;
+        }
+
+        .dialogue {
+            margin-top: 13px;
+
+            padding: 12px 14px;
+
+            border-radius: 14px;
+
+            background: #f7f4ff;
+        }
+
+        .dialogue p {
+            margin: 6px 0;
+
+            line-height: 1.55;
+        }
+
+        .prompt {
+            margin-top: 14px;
+
+            color: #777086;
+
+            font-size: .88rem;
+
+            line-height: 1.5;
+        }
+
+        .badge {
+            display: inline-block;
+
+            margin-bottom: 10px;
+
+            padding:
+                5px 10px;
+
+            border-radius: 999px;
+
+            background: #efeaff;
+
+            font-size: .8rem;
+
+            font-weight: 800;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="wrap">
+
+
+    <div class="top">
+
+        <div>
+
+            <span class="badge">
+                5-Panel AI Comic
+            </span>
+
+            <h1>
+                📖 Your Comic
+            </h1>
+
+            <div>
+                Character:
+                <strong>
+                    {{ character_name }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="actions">
+
+            <a
+                class="button secondary"
+                href="/"
+            >
+                ← Create Another
+            </a>
+
+
+            {% if pdf_url %}
+
+             <a
+                 class="button primary"
+                 href="{{ pdf_url }}"
+                 download
+                 onclick="setTimeout(function() {
+                     window.location.href = '/export-success?pdf_url=' + encodeURIComponent('{{ pdf_url }}');
+                 }, 1000);"
+             >
+                 ⬇ Download PDF
+             </a>
+
+             {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <div class="meta">
+
+        <strong>
+            Story idea:
+        </strong>
+
+        {{ story_prompt }}
+
+    </div>
+
+
+    {% for panel in layout %}
+
+    <article class="panel">
+
+        <h2>
+            Panel
+            {{ panel.panel_number }}
+            ·
+            {{ panel.title }}
+        </h2>
+
+
+        <img
+            src="{{ panel.image_url }}"
+            alt="AI-generated comic illustration for panel {{ panel.panel_number }}"
+        >
+
+
+        {% if panel.scene_description %}
+
+        <p class="scene">
+            {{ panel.scene_description }}
+        </p>
+
+        {% endif %}
+
+
+        {% if panel.caption %}
+
+        <div class="copy">
+
+            <strong>
+                Caption:
+            </strong>
+
+            {{ panel.caption }}
+
+        </div>
+
+        {% endif %}
+
+
+        {% if panel.narration %}
+
+        <div class="copy">
+
+            <strong>
+                Narration:
+            </strong>
+
+            {{ panel.narration }}
+
+        </div>
+
+        {% endif %}
+
+
+        {% if panel.dialogue %}
+
+        <div class="dialogue">
+
+            {% for line in panel.dialogue %}
+
+            <p>
+
+                <strong>
+                    {{ line.speaker }}:
+                </strong>
+
+                {{ line.line }}
+
+            </p>
+
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+
+        <div class="prompt">
+
+            <strong>
+                Image prompt:
+            </strong>
+
+            {{ panel.image_prompt }}
+
+        </div>
+
+    </article>
+
+    {% endfor %}
+
+</div>
+
+</body>
+
+</html>

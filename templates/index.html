@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ComicCraftAI</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 30px 18px;
+
+            font-family:
+                Inter,
+                Arial,
+                sans-serif;
+
+            color: #1c1730;
+
+            background:
+                radial-gradient(
+                    circle at top left,
+                    #ffe9c7,
+                    #e6ddff 45%,
+                    #cfeeff
+                );
+        }
+
+        .container {
+            width: min(950px, 100%);
+            margin: auto;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .hero h1 {
+            margin: 0;
+
+            font-size:
+                clamp(
+                    2.4rem,
+                    7vw,
+                    4.5rem
+                );
+        }
+
+        .hero p {
+            margin: 10px 0 0;
+
+            color: #5b5570;
+
+            font-size: 1.05rem;
+        }
+
+        .features {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+
+            margin-top: 18px;
+        }
+
+        .feature {
+            background: rgba(255,255,255,.72);
+            border: 1px solid rgba(255,255,255,.9);
+
+            padding: 7px 12px;
+
+            border-radius: 999px;
+
+            font-size: .88rem;
+            font-weight: 700;
+        }
+
+        .card {
+            background:
+                rgba(255,255,255,.92);
+
+            backdrop-filter: blur(12px);
+
+            border:
+                1px solid rgba(255,255,255,.85);
+
+            border-radius: 26px;
+
+            padding: 30px;
+
+            box-shadow:
+                0 20px 60px
+                rgba(37,29,74,.12);
+        }
+
+        .error {
+            margin-bottom: 18px;
+
+            padding: 13px 15px;
+
+            border-radius: 13px;
+
+            color: #8a1f1f;
+
+            background: #fff0f0;
+
+            border:
+                1px solid #ffc9c9;
+        }
+
+        .grid {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 17px;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-weight: 800;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+
+            border:
+                1px solid #d8d2e8;
+
+            border-radius: 14px;
+
+            padding: 13px 14px;
+
+            font: inherit;
+
+            background: #fff;
+            color: #1c1730;
+        }
+
+        textarea {
+            min-height: 145px;
+
+            resize: vertical;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline:
+                3px solid
+                rgba(122,92,255,.18);
+
+            border-color: #7a5cff;
+        }
+
+        .hint {
+            margin-top: 7px;
+
+            color: #6a6478;
+
+            font-size: .88rem;
+        }
+
+        .button {
+            width: 100%;
+
+            margin-top: 4px;
+
+            border: 0;
+
+            border-radius: 16px;
+
+            padding: 15px;
+
+            background: #1c1730;
+
+            color: white;
+
+            font-size: 1.05rem;
+            font-weight: 800;
+
+            cursor: pointer;
+
+            transition:
+                transform .15s ease,
+                opacity .15s ease;
+        }
+
+        .button:hover {
+            transform:
+                translateY(-2px);
+            opacity: .94;
+        }
+
+        .footer-note {
+            margin-top: 15px;
+
+            text-align: center;
+
+            color: #736d82;
+
+            font-size: .82rem;
+        }
+
+        @media (
+            max-width: 700px
+        ) {
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: auto;
+            }
+
+            .card {
+                padding: 21px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <section class="hero">
+
+        <h1>
+            🎨 ComicCraftAI
+        </h1>
+
+        <p>
+            Turn one idea into a complete
+            five-panel AI comic.
+        </p>
+
+        <div class="features">
+
+            <span class="feature">
+                ✨ AI Story
+            </span>
+
+            <span class="feature">
+                💬 Dialogue
+            </span>
+
+            <span class="feature">
+                🖼️ Illustrations
+            </span>
+
+            <span class="feature">
+                📄 PDF Export
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <section class="card">
+
+        {% if error %}
+
+        <div class="error">
+
+            <strong>
+                Generation failed:
+            </strong>
+
+            {{ error }}
+
+        </div>
+
+        {% endif %}
+
+
+        <form
+            action="/generate"
+            method="post"
+        >
+
+            <div class="grid">
+
+                <div class="full">
+
+                    <label
+                        for="story_prompt"
+                    >
+                        Story Prompt
+                    </label>
+
+                    <textarea
+                        id="story_prompt"
+                        name="story_prompt"
+                        required
+                        maxlength="2000"
+                        placeholder="Example: A student discovers a hidden garden inside an old college library."
+                    >{{ story_prompt or "" }}</textarea>
+
+                    <div class="hint">
+                        Describe the main idea.
+                        ComicCraftAI will build the
+                        complete five-panel story.
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="character_name"
+                    >
+                        Main Character
+                    </label>
+
+                    <input
+                        id="character_name"
+                        name="character_name"
+                        value="{{ character_name or 'Alex' }}"
+                        maxlength="100"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="setting"
+                    >
+                        Setting
+                    </label>
+
+                    <input
+                        id="setting"
+                        name="setting"
+                        value="{{ setting or 'A modern city' }}"
+                        maxlength="200"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="tone"
+                    >
+                        Story Tone
+                    </label>
+
+                    <select
+                        id="tone"
+                        name="tone"
+                    >
+
+                        <option>
+                            adventurous
+                        </option>
+
+                        <option>
+                            funny
+                        </option>
+
+                        <option>
+                            dramatic
+                        </option>
+
+                        <option>
+                            heartwarming
+                        </option>
+
+                        <option>
+                            mysterious
+                        </option>
+
+                        <option>
+                            inspiring
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="art_style"
+                    >
+                        Art Style
+                    </label>
+
+                    <select
+                        id="art_style"
+                        name="art_style"
+                    >
+
+                        <option>
+                            comic book
+                        </option>
+
+                        <option>
+                            anime
+                        </option>
+
+                        <option>
+                            pixel art
+                        </option>
+
+                        <option>
+                            graphic novel
+                        </option>
+
+                        <option>
+                            watercolor illustration
+                        </option>
+
+                        <option>
+                            cinematic concept art
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="full">
+
+                    <button
+                        class="button"
+                        type="submit"
+                    >
+                        ✨ Generate My Comic
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <div class="footer-note">
+        ComicCraftAI · AI-powered creative storytelling
+    </div>
+
+</div>
+
+</body>
+</html>
